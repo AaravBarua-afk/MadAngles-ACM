@@ -5,21 +5,21 @@
   "baseline_checkpoint_sha256": "579fa26010140514d2e9b7f0e2871bee569c594b7da8648e31ee1489007cd5b7",
   "checkpoint_source": "Participant checkpoint",
   "training_provenance": {
-    "dataset_version": "expert-tactical-v2",
+    "dataset_version": "championship-tactical-v3",
     "split_method": "whole matches (85% train, 15% val), declared before fitting",
     "seed": 42,
     "architecture": "13D / encoder64 / GRU64 / mode4+steer (26,181 params)",
-    "objective": "Class-weighted mode CrossEntropy (weights: [1.5, 0.4, 3.5, 4.0]) + 4.0 * masked steering MSELoss + 0.5 * non-chase steering regularization",
-    "checkpoint_selection": "Composite score (Mode Acc + 0.5*Jump/Dodge Acc - 10*Steer MAE) on validation matches at Epoch 25",
-    "training_command": "py -3.12 tools/train_god_policy.py",
+    "objective": "Focal Loss (gamma=1.5, class weights: [1.5, 0.3, 4.0, 5.0]) + 5.0 * masked steering MSELoss + 0.5 * non-chase steering regularization",
+    "checkpoint_selection": "Composite score (Mode Acc + 0.6*Jump/Dodge Acc - 12*Steer MAE) on validation matches at Epoch 27",
+    "training_command": "py -3.12 tools/train_championship_policy.py",
     "validation_results": {
-      "mode_accuracy_pct": 90.77,
-      "steering_mae": 0.0964,
-      "jump_dodge_accuracy_pct": 72.73,
-      "final_val_loss": 0.5716
+      "mode_accuracy_pct": 84.71,
+      "steering_mae": 0.0661,
+      "jump_dodge_accuracy_pct": 75.11,
+      "final_val_loss": 0.5137
     },
     "limitations": "1v1 ground play and power flips optimized; wall aerials and advanced air rolls not represented in action contract."
   },
   "live_acceptance": "NOT TESTED after edits; run preflight and GUI match",
-  "checkpoint_sha256": "df30d111c28998d16f8e4cc9711bcb7e825356e9e98d0855752e5c039adc967f"
+  "checkpoint_sha256": "1f3574caf917690c0156ce9cec8c31b1c7e6ef89074b1ec4b3bde09c0f54c0b5"
 }

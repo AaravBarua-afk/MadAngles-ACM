@@ -8,18 +8,18 @@ During initial testing with the untouched starter baseline (`V13.pt`), the bot s
 
 ## 2. Training Methodology & Tactical Architecture
 To address these deficiencies while respecting the strict 26,181-parameter 13D GRU contract:
-- **Tactical Dataset (v2)**: Generated 1,800 balanced 1v1 match trajectories (160,000+ steps total) specifically covering kickoffs (5 standard spawns), strike zone power front flips, high bounce aerial blocks, and rapid 180-degree turnaround U-turn recoveries.
+- **Tactical Dataset (v3)**: Generated 2,000 balanced 1v1 match trajectories (160,000+ steps total) specifically covering kickoffs (5 standard spawns), goal-directed power front flips, high bounce aerial blocks, and rapid 180-degree turnaround U-turn recoveries.
 - **Loss Objective**: Multi-task learning combining:
-  1. Class-weighted CrossEntropyLoss for action modes (weights [1.5, 0.4, 3.5, 4.0] prioritizing Jump and Front Dodge to prevent class collapse).
-  2. Masked continuous steering MSELoss on Mode 1 (Chase) with weight 4.0.
+  1. Focal Loss (gamma=1.5, class weights [1.5, 0.3, 4.0, 5.0] prioritizing Jump and Front Dodge to guarantee flip strike execution).
+  2. Masked continuous steering MSELoss on Mode 1 (Chase) with weight 5.0.
   3. Steering regularization on non-chase modes.
-- **Optimization**: AdamW with cosine learning rate schedule (2e-3 to 1e-5) across 25 epochs with whole-match validation splitting (seed 42).
+- **Optimization**: AdamW with cosine learning rate schedule (2.5e-3 to 1e-5) across 30 epochs with whole-match validation splitting (seed 42).
 
 ## 3. Measured Validation Results
-- **Overall Mode Accuracy**: 90.77%
-- **Jump & Front Dodge Accuracy**: 72.73%
-- **Steering Mean Absolute Error (MAE)**: 0.0964
-- **Best Validation Loss**: 0.5716
+- **Overall Mode Accuracy**: 84.71%
+- **Jump & Front Dodge Accuracy**: 75.11%
+- **Steering Mean Absolute Error (MAE)**: 0.0661
+- **Best Validation Loss**: 0.5137
 
 ## 4. Live GUI Acceptance Observations
 In live 1v1 testing against Psyonix bots through RLBot v5 GUI:
