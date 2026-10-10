@@ -25,7 +25,7 @@ class V13(Bot):
         self.evidence('process_started',dict(cwd=str(Path.cwd()),executable=sys.executable,
             package_root=str(ROOT),agent_id=os.environ.get('RLBOT_AGENT_ID'),checkpoint=PIN,
             controller='V13 student only',shadow_teacher=False))
-        super().__init__('shryssssss/v13')
+        super().__init__('MadAngles/Snoopy')
         self._game_interface.on_connect_handlers.append(lambda:self.evidence('rlbot_connected',{}))
         original_send=self._game_interface.send_msg
         def submit(message):
