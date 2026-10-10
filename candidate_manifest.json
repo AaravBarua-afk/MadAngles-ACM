@@ -30,7 +30,7 @@
   "files": {
     "model/V13.pt": "df30d111c28998d16f8e4cc9711bcb7e825356e9e98d0855752e5c039adc967f",
     "src/policy.py": "e6508a0ab29be40be51a6e1859bfb6d63a1072e9c87c1ddbdde0cbf78e4df810",
-    "src/observation_contract.py": "a8da31f67e105cc7f8eb3350daab2e42af416f68509421bce8547501d8fae52e",
+    "src/observation_contract.py": "f40b5175ca655db84baa4d1f2ed650a3ae42f9d60c7e9a7acb0311768fc0e375",
     "src/prediction.py": "7b06f25657476b6d8fc8f67c0d834a8166cce7a76cfd8f3404ea0c634c0c466f",
     "src/runtime.py": "6f0ddbad13f30d234420ca3423fe143019785bdfc1b721eae495a1ef32f14a8e",
     "src/bot.py": "810a4fc37dece7a8418755a171833a6f157f61e2900ab02f3df5cc3d4e5876e6"

@@ -50,9 +50,7 @@ def build(raw, context):
             raise ValueError('Initialization must have previous Neutral action')
         dt = 0.
     else:
-        dt = now-finite(previous)
-        if dt <= 0:
-            raise ValueError('Duplicate/backward callback clock')
+        dt = max(0., now-finite(previous))
     out = [0.]*18
     out[7] = math.sqrt(sum(x*x for x in vel))/2300.
     out[12] = dt/(1/60)
