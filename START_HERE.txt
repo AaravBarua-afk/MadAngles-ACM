@@ -1,0 +1,65 @@
+V13 PARTICIPANT KIT - START HERE
+================================
+
+IMPORTANT: RUN setup.ps1 IN YOUR EXTRACTED FOLDER FIRST.
+Wait for setup to finish successfully BEFORE adding bot.toml to RLBot GUI.
+The ZIP deliberately contains no Python environment. Without setup, the GUI
+may list V13 and launch Rocket League, but the bot cannot start or spawn.
+
+1. EXTRACT
+   Right-click the ZIP -> Extract All. Open the V13 folder inside it.
+   You must see setup.ps1, bot.toml, README.md, src and model together.
+   Do not launch files while browsing inside the compressed ZIP.
+
+2. INSTALL PREREQUISITES
+   Install Python 3.12 (with the Python launcher), Rocket League and the
+   official RLBot v5 launcher from https://rlbot.org/v5/.
+   Open Rocket League once normally. CPU inference is supported; no GPU needed.
+
+3. SET UP THIS EXTRACTED COPY
+   Easiest: double-click SETUP.cmd and wait for "Setup complete".
+   It keeps the window open so you can read errors. If Windows blocks the
+   downloaded scripts, unblock the ZIP in Properties and extract again.
+   Alternative (PowerShell):
+   Open the V13 folder in File Explorer. Click the address bar, type powershell,
+   and press Enter. Run these commands in the PowerShell window:
+
+       py -3.12 --version
+       & '.\setup.ps1'
+
+   Downloads/installation may take several minutes. Keep the window open.
+   Wait for a preflight pass and "Setup complete". If you see an error,
+   stop and send the complete output to the organiser. Do not continue to GUI.
+
+   If Windows blocks scripts, read docs/QUICK_START.md for the limited,
+   session-only execution-policy instructions. Do not disable security globally.
+   Double-click CHECK.cmd afterwards for a local integrity/inference check.
+
+4. OPEN THE OFFICIAL RLBOT LAUNCHER
+   Use its installed Start-menu shortcut. Do not open the internal
+   rlbotgui.exe directly: the official launcher also starts RLBotServer.
+
+5. REGISTER AND PLAY
+   GUI -> Add/Remove -> Add File -> select THIS EXTRACTED FOLDER'S bot.toml.
+   Put V13 on Blue or Orange, with one opponent on the other team (1v1 Soccar).
+   Choose Epic/Steam in Launcher Options as appropriate, then Start Match.
+   If old and new V13 entries exist, use the extracted copy's path; do not
+   assign two copies with the same agent ID in one match.
+
+6. IF THE GAME OPENS BUT V13 IS MISSING
+   Check that setup finished in this exact extracted folder, not another copy.
+   Confirm .venv\Scripts\python.exe exists beside the root bot.toml.
+   Capture the launcher/server error output and any local logs/ evidence.
+   See docs/TESTING.md. Do not substitute the scripted reference for the ML bot.
+
+7. IMPROVE AND SUBMIT
+   Read README.md, then docs/IMPROVING_THE_BOT.md and docs/SUBMISSION.md.
+   Make a separate upgrade copy. The original Python Example is a separate
+   SCRIPTED reference in reference/python_example; V13 itself is the ML student.
+   No demonstration dataset or trainer is bundled. Setup does NOT train.
+   Organisers: read docs/ORGANISER_GUIDE.md and use the same setup + GUI workflow.
+
+MOVED OR RE-EXTRACTED THE FOLDER?
+Create the local environment again with setup.ps1 and register the new bot.toml.
+Do not copy someone else's .venv. Moving the ZIP is harmless; each extracted
+installation needs its own environment. Keep all package files together.

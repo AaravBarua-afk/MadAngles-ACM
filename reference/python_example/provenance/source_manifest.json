@@ -1,0 +1,46 @@
+{
+  "revision": "fd061f457bf19175b4a9b3b3d7811a987044c64d",
+  "upstream": "https://github.com/RLBot/python-example",
+  "copied_files": {
+    "src/bot.py": {
+      "kit_path": "reference/python_example/src/bot.py",
+      "sha256": "72eb6ae7bd19b54a42090fb7e483609b90262582d535cb7681295841207b12cd"
+    },
+    "src/loadout.toml": {
+      "kit_path": "reference/python_example/src/loadout.toml",
+      "sha256": "42314d5fc0695b34b9407df7e55a6e98e01350f2b8784992554a6fdaf35bca80"
+    },
+    "src/__init__.py": {
+      "kit_path": "reference/python_example/src/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "src/util/ball_prediction_analysis.py": {
+      "kit_path": "reference/python_example/src/util/ball_prediction_analysis.py",
+      "sha256": "7b06f25657476b6d8fc8f67c0d834a8166cce7a76cfd8f3404ea0c634c0c466f"
+    },
+    "src/util/boost_pad_tracker.py": {
+      "kit_path": "reference/python_example/src/util/boost_pad_tracker.py",
+      "sha256": "f8c73a9e292b67e21a286d44a1c72349ba8a33b2eab9bb75395a91b3456f25b6"
+    },
+    "src/util/drive.py": {
+      "kit_path": "reference/python_example/src/util/drive.py",
+      "sha256": "3d906afcd52d84e549caed66dd1eabee96f3be18ba2cee2bc59663f3a3be7a61"
+    },
+    "src/util/orientation.py": {
+      "kit_path": "reference/python_example/src/util/orientation.py",
+      "sha256": "b821d3e244306b07250f03654c5971c50caa7a55796b8a21954fa7b26f0ec245"
+    },
+    "src/util/sequence.py": {
+      "kit_path": "reference/python_example/src/util/sequence.py",
+      "sha256": "3490111225e5b1a78a62dfbaa4b3cef4d4afb64e324f2063b6f81dda249c756e"
+    },
+    "src/util/vec.py": {
+      "kit_path": "reference/python_example/src/util/vec.py",
+      "sha256": "8cd574b88e875a9e225bd6f300b1035575fa055a97a74fa2add8ef864e7240c7"
+    },
+    "src/util/__init__.py": {
+      "kit_path": "reference/python_example/src/util/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

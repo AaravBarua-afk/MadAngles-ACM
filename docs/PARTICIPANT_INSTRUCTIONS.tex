@@ -1,0 +1,293 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=0.9in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{tcolorbox}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\setlength{\headheight}{14pt}
+
+% Colors
+\definecolor{primary}{RGB}{18, 52, 86}
+\definecolor{secondary}{RGB}{30, 100, 160}
+\definecolor{codebg}{RGB}{245, 247, 250}
+\definecolor{codeframe}{RGB}{210, 215, 222}
+\definecolor{alertred}{RGB}{180, 40, 40}
+\definecolor{successgreen}{RGB}{30, 130, 60}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=secondary,
+    urlcolor=secondary,
+    citecolor=primary
+}
+
+% Page styling
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\textcolor{primary}{\textbf{Model Wars: RLBot Machine Learning Tournament}}}
+\rhead{\textcolor{gray}{Participant Technical Guide}}
+\cfoot{\thepage}
+
+% Listings configuration
+\lstset{
+    backgroundcolor=\color{codebg},
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    frame=single,
+    rulecolor=\color{codeframe},
+    keywordstyle=\color{primary}\bfseries,
+    commentstyle=\color{gray}\itshape,
+    stringstyle=\color{secondary},
+    showstringspaces=false,
+    tabsize=2
+}
+
+\tcbuselibrary{skins,breakable}
+\newtcolorbox{infobox}[1][]{
+    colback=codebg,
+    colframe=secondary,
+    fonttitle=\bfseries\color{white},
+    coltitle=white,
+    colbacktitle=secondary,
+    enhanced,
+    sharp corners,
+    title=#1
+}
+
+\newtcolorbox{warningbox}[1][]{
+    colback=codebg,
+    colframe=alertred,
+    fonttitle=\bfseries\color{white},
+    coltitle=white,
+    colbacktitle=alertred,
+    enhanced,
+    sharp corners,
+    title=#1
+}
+
+\titleformat{\section}{\Large\bfseries\color{primary}}{\thesection}{1em}{}[\titlerule]
+\titleformat{\subsection}{\large\bfseries\color{secondary}}{\thesubsection}{1em}{}
+
+\title{
+    \vspace{-1.5cm}
+    \textbf{\Huge Model Wars: RLBot ML Competition} \\
+    \Large Participant Technical Specification \& Submission Guide
+}
+\author{\textbf{Model Wars Tournament Committee}}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+This document outlines the complete technical requirements, model architecture contract, development environment setup, and submission verification pipeline for the Model Wars Rocket League Machine Learning Tournament. Participants develop an autonomous machine learning policy to compete in 1v1 Soccar matches powered by RLBot v5. All submissions are automatically evaluated and cryptographically validated via continuous integration.
+\end{abstract}
+
+\vspace{0.2cm}
+\tableofcontents
+\vspace{0.5cm}
+
+\section{Competition Overview \& Architecture}
+
+The Model Wars tournament evaluates participant-trained neural network controllers in head-to-head 1v1 Rocket League matches. Bots interact with Rocket League via the official \textbf{RLBot v5} framework, receiving real-time physics state observations and outputting native controller inputs at variable tick frequencies.
+
+\subsection{Standard Observation Contract (13 Dimensions)}
+Models receive exactly \textbf{13 finite float32 values} per decision callback, strictly structured as detailed in Table~\ref{tab:observation}. All car-relative displacements are projected onto the car's local axes (pitch, yaw, and roll) and normalized by standard game constants.
+
+\begin{table}[h!]
+\centering
+\small
+\begin{tabular}{cllp{7.5cm}}
+\toprule
+\textbf{Index} & \textbf{Feature Name} & \textbf{Normalization} & \textbf{Description} \\
+\midrule
+0 & Ball Forward & $x / 6000$ UU & Car-relative ball displacement along longitudinal axis. \\
+1 & Ball Right & $y / 6000$ UU & Car-relative ball displacement along lateral axis. \\
+2 & Ball Up & $z / 6000$ UU & Car-relative ball displacement along vertical axis. \\
+3 & Prediction Forward & $x_{\text{pred}} / 6000$ UU & Projected 2-second RLBot trajectory slice (forward). \\
+4 & Prediction Right & $y_{\text{pred}} / 6000$ UU & Projected 2-second RLBot trajectory slice (lateral). \\
+5 & Prediction Up & $z_{\text{pred}} / 6000$ UU & Projected 2-second RLBot trajectory slice (vertical). \\
+6 & Ball Distance & $\|\mathbf{d}\| / 6000$ UU & Euclidean car-to-ball distance in 3D space. \\
+7 & Car Speed & $\|\mathbf{v}\| / 2300$ UU/s & Magnitude of car linear velocity vector. \\
+8 & Ball Present & Binary $\{0, 1\}$ & Sensor mask indicating ball presence. \\
+9 & Prediction Valid & Binary $\{0, 1\}$ & Sensor mask indicating valid trajectory packet slice. \\
+10 & Horizon Offset & $\Delta t / 2.0$ & Normalized prediction time offset: $(t_{\text{slice}} - t_{\text{now}})/2$. \\
+11 & Slice Offset & $\Delta t_{\text{first}} / (1/120)$ & Offset relative to first trajectory packet slice. \\
+12 & Callback $\Delta t$ & $\Delta t / (1/60)$ & Elapsed time between consecutive callbacks ($0$ on first tick). \\
+\bottomrule
+\end{tabular}
+\caption{The 13-Dimensional Input Observation Vector.}
+\label{tab:observation}
+\end{table}
+
+\subsection{Neural Policy Architecture (26,181 Parameters)}
+To ensure fair computational bounds, the standard tournament baseline requires the exact \textbf{13D causal GRU architecture}:
+\begin{equation*}
+    \mathbf{x} \in \mathbb{R}^{13} \xrightarrow{\text{Linear}(13 \to 64)} \mathbf{z}_1 \xrightarrow{\text{ReLU}} \mathbf{z}_2 \xrightarrow{\text{GRU}(64 \to 64)} \mathbf{h} \xrightarrow{\text{Linear}(64 \to 5)} \mathbf{y}
+\end{equation*}
+where $\mathbf{y} = [\mathbf{m}_{1:4}, s]$ denotes:
+\begin{itemize}[noitemsep]
+    \item Mode logits $\mathbf{m} \in \mathbb{R}^4$: Selects from discrete controller action primitives.
+    \item Continuous steering $s \in [-1, 1]$: Transformed via $\tanh(\cdot)$ activation.
+    \item Total trainable parameters: $\mathbf{26,181}$.
+\end{itemize}
+
+\subsection{Action Decoding Scheme}
+Output mode probabilities determine controller signals according to Table~\ref{tab:action_decoding}.
+
+\begin{table}[h!]
+\centering
+\small
+\begin{tabular}{clcccc}
+\toprule
+\textbf{Mode} & \textbf{Behavior} & \textbf{Throttle} & \textbf{Steering} & \textbf{Pitch} & \textbf{Jump} \\
+\midrule
+0 & Neutral & $0.0$ & $0.0$ & $0.0$ & False \\
+1 & Chase & $1.0$ & Continuous $s \in [-1, 1]$ & $0.0$ & False \\
+2 & Single Jump & $0.0$ & $0.0$ & $0.0$ & True \\
+3 & Front Dodge (Flip) & $0.0$ & $0.0$ & $-1.0$ & True \\
+\bottomrule
+\end{tabular}
+\caption{Native Action Mode Table. Yaw, roll, boost, and handbrake default to 0/False in baseline.}
+\label{tab:action_decoding}
+\end{table}
+
+\section{Environment Setup \& Local Testing}
+
+\subsection{Prerequisites}
+Ensure the following tools are installed on your workstation:
+\begin{enumerate}[noitemsep]
+    \item \textbf{Python 3.12 (64-bit)}: Enabled with system PATH access.
+    \item \textbf{Rocket League}: Installed via Epic Games Store or Steam.
+    \item \textbf{Official RLBot v5 Launcher}: Downloaded from \url{https://rlbot.org/v5/}.
+\end{enumerate}
+
+\subsection{Local Environment Initialization}
+Run the setup script inside your repository to install pinned dependencies and create the `.venv`:
+\begin{lstlisting}[language=bash]
+# Windows (PowerShell)
+.\setup.ps1
+
+# Or double-click SETUP.cmd
+\end{lstlisting}
+
+\subsection{Executing Local Verification}
+Verify your environment and model tensors prior to game execution:
+\begin{lstlisting}[language=bash]
+# Run numerical and tensor integrity checks
+.\.venv\Scripts\python.exe -I -u -B src/preflight.py
+
+# Or double-click CHECK.cmd
+\end{lstlisting}
+
+Launch RLBot v5 using its desktop launcher, click \textbf{Add File}, select `bot.toml`, and start a 1v1 match against an opponent bot to confirm live gameplay.
+
+\section{Submission Rules \& Integrity Policies}
+
+\begin{warningbox}[Strict Anti-Plagiarism \& Baseline Rules]
+Submissions that use the unmodified starter model weights (\texttt{V13.pt}) or the default starter identifier (\texttt{shryssssss/v13}) are \textbf{automatically disqualified and rejected} by the CI validation system.
+\end{warningbox}
+
+\subsection{Submission Criteria Checklist}
+Every valid submission must satisfy the following constraints:
+\begin{itemize}[noitemsep]
+    \item \textbf{Trained Weights}: Checkpoint SHA-256 must \textbf{not} match \texttt{579fa26010140514d2e9b7f0e2871bee569c594b7da8648e31ee1489007cd5b7}.
+    \item \textbf{Custom Identity}: `bot.toml` and `submission.json` must declare a distinct display name and an `author/bot` identifier.
+    \item \textbf{Training Provenance}: `submission.json` must specify non-empty experiment metadata: dataset version, training objective, seed, split methodology, and validation scores.
+    \item \textbf{Technical Report}: \texttt{docs/PARTICIPANT\_RESULTS.md} must document your experiment process, training curves/metrics, and live GUI test results ($\ge 50$ characters).
+    \item \textbf{Security Sandbox}: Code inside \texttt{src/} must not import restricted libraries (\texttt{socket}, \texttt{subprocess}, \texttt{requests}, \texttt{urllib}) or execute dynamic evaluations (\texttt{eval}, \texttt{exec}).
+\end{itemize}
+
+\section{Step-by-Step GitHub Submission Guide}
+
+The tournament utilizes private GitHub repositories coupled with GitHub Actions for automated verification.
+
+\begin{infobox}[Workflow Overview]
+1. Instantiate private repo $\to$ 2. Invite Organizer $\to$ 3. Initialize bot identity $\to$ 4. Train \& Seal $\to$ 5. Push \& CI Verification.
+\end{infobox}
+
+\subsection{Step 1: Create Your Private Submission Repository}
+\begin{enumerate}
+    \item Navigate to the template repository: \url{https://github.com/Model-Wars/Model-Wars-Base-Repository}.
+    \item Click the green \textbf{"Use this template"} button $\to$ \textbf{"Create a new repository"}.
+    \item Repository Name: \texttt{<team-name>-rlbot} (e.g., \texttt{apex-rlbot}).
+    \item Set visibility to \textbf{Private}. \textit{Do not select Public, or opponents can view your model and code!}
+    \item Click \textbf{"Create repository"}.
+\end{enumerate}
+
+\subsection{Step 2: Add Tournament Organizers as Collaborators}
+\begin{enumerate}
+    \item In your private repo, click \textbf{Settings} $\to$ \textbf{Collaborators}.
+    \item Click \textbf{"Add people"}.
+    \item Search for and invite \texttt{@Model-Wars} (or the designated tournament judge account) with \textbf{Read} or \textbf{Admin} access.
+\end{enumerate}
+
+\subsection{Step 3: Clone \& Initialize Your Bot Identity}
+Clone your repository and initialize your custom bot metadata:
+\begin{lstlisting}[language=bash]
+git clone https://github.com/<your-username>/<team-name>-rlbot.git
+cd <team-name>-rlbot
+
+# Initialize custom bot configuration and agent ID in-place:
+python tools/kit.py init --name "TeamApex" --agent-id "teamapex/striker"
+\end{lstlisting}
+
+\subsection{Step 4: Train and Seal Checkpoint}
+After conducting your training experiments (via imitation learning or reinforcement learning), seal the resulting PyTorch weights into your repository:
+
+\begin{lstlisting}[language=bash]
+# Format: python tools/kit.py seal --checkpoint <path_to_model.pt> --provenance <path_to_provenance.json>
+python tools/kit.py seal --checkpoint model/V13.pt --provenance docs/training_provenance.json
+\end{lstlisting}
+
+The `seal` utility validates tensor finite bounds, updates the exact SHA-256 runtime pin in \texttt{src/runtime.py}, and records your training provenance inside \texttt{submission.json}.
+
+\subsection{Step 5: Document Results and Push}
+Update \texttt{docs/PARTICIPANT\_RESULTS.md} with your measured validation results and commit your work:
+\begin{lstlisting}[language=bash]
+git add .
+git commit -m "Submit trained TeamApex policy"
+git push origin main
+\end{lstlisting}
+
+\section{Continuous Integration \& Verification Feedback}
+
+Upon pushing to \texttt{main}, GitHub Actions automatically triggers \texttt{.github/workflows/validate.yml} to run \texttt{tools/validate\_submission.py}.
+
+\subsection{Interpreting CI Badges}
+\begin{itemize}
+    \item \textbf{\textcolor{successgreen}{[$\checkmark$ PASS] (Green Checkmark)}}: All requirements are fulfilled. Checkpoint is trained, PIN hashes match, tensor architecture is verified, and documentation is present. Your submission is accepted.
+    \item \textbf{\textcolor{alertred}{[$\times$ FAIL] (Red Cross)}}: One or more checks failed. Click the \textbf{Actions} tab on GitHub, inspect the build log, review the failure message (e.g., missing provenance, unchanged starter hash, or invalid shape), fix the issue locally, seal again, and push an update.
+\end{itemize}
+
+\subsection{Common Validation Errors and Remedies}
+\begin{table}[h!]
+\centering
+\small
+\begin{tabular}{p{6.5cm}p{7.5cm}}
+\toprule
+\textbf{Error Message} & \textbf{Resolution} \\
+\midrule
+\texttt{Checkpoint matches unmodified starter weights!} & You must replace \texttt{model/V13.pt} with your own trained model weights using \texttt{kit.py seal}. \\
+\texttt{PIN in src/runtime.py does not match actual SHA256} & Run \texttt{python tools/kit.py seal} to update the cryptographic pin in \texttt{src/runtime.py}. \\
+\texttt{submission.json missing!} & Run \texttt{python tools/kit.py init --name ... --agent-id ...} to create your fork metadata. \\
+\texttt{PARTICIPANT\_RESULTS.md missing or too brief} & Add detailed experimental notes and validation metrics to \texttt{docs/PARTICIPANT\_RESULTS.md}. \\
+\bottomrule
+\end{tabular}
+\caption{Troubleshooting common validation failures.}
+\label{tab:troubleshooting}
+\end{table}
+
+\vfill
+\begin{center}
+\small\textcolor{gray}{Model Wars Tournament Committee --- All Rights Reserved}
+\end{center}
+
+\end{document}

@@ -1,0 +1,13 @@
+#:schema https://rlbot.org/schemas/agent.json
+[settings]
+name = "Original Python Example (Scripted Reference)"
+agent_id = "rlbot_community/python_example"
+root_dir = ""
+run_command = "..\\..\\.venv\\Scripts\\python.exe -u -B src\\bot.py"
+loadout_file = "src/loadout.toml"
+logo_file = ""
+[details]
+description = "Unchanged original scripted Python Example. Separate reference; NOT the V13 ML student."
+developer = "The RLBot community"
+language = "Python"
+tags = ["1v1"]

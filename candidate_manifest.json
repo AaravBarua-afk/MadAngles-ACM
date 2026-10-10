@@ -1,0 +1,38 @@
+{
+  "format": "v13_runtime_integrity_v1",
+  "version": "starter_13d_gru",
+  "checkpoint_sha256": "579fa26010140514d2e9b7f0e2871bee569c594b7da8648e31ee1489007cd5b7",
+  "features13": [
+    "ball_forward",
+    "ball_right",
+    "ball_up",
+    "prediction_forward",
+    "prediction_right",
+    "prediction_up",
+    "ball_distance",
+    "car_speed",
+    "ball_present",
+    "prediction_valid",
+    "prediction_horizon",
+    "prediction_first_offset",
+    "callback_dt"
+  ],
+  "channels": [
+    "throttle",
+    "steer",
+    "pitch",
+    "yaw",
+    "roll",
+    "jump",
+    "boost",
+    "handbrake"
+  ],
+  "files": {
+    "model/V13.pt": "579fa26010140514d2e9b7f0e2871bee569c594b7da8648e31ee1489007cd5b7",
+    "src/policy.py": "e6508a0ab29be40be51a6e1859bfb6d63a1072e9c87c1ddbdde0cbf78e4df810",
+    "src/observation_contract.py": "e0f59f763d33e59f6815a86e9c452b3fcade87fe26727ca53c910ebb7e6db750",
+    "src/prediction.py": "7b06f25657476b6d8fc8f67c0d834a8166cce7a76cfd8f3404ea0c634c0c466f",
+    "src/runtime.py": "f35531af9aa0be5e6038ada6850e35a8749061b91a192027dbe345295b1158df",
+    "src/bot.py": "42cb63c0adae63236d1d27b65371071c4e7b4f1a4a0fc547b287f690b7734860"
+  }
+}

@@ -1,0 +1,15 @@
+#:schema https://rlbot.org/schemas/agent.json
+[settings]
+name = "V13"
+agent_id = "shryssssss/v13"
+root_dir = ""
+run_command = ".venv\\Scripts\\python.exe -I -u -B src\\bot.py"
+loadout_file = "loadout.toml"
+logo_file = ""
+hivemind = false
+
+[details]
+description = "Experimental 1v1 imitation-learning bot using the original V13 13D GRU checkpoint."
+developer = "shryssssss"
+language = "Python"
+tags = ["1v1"]

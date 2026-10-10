@@ -1,0 +1,31 @@
+name: Validate Bot Submission
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install PyTorch (CPU)
+        run: pip install torch --index-url https://download.pytorch.org/whl/cpu
+
+      - name: Fetch and Run Official Trusted Validator
+        run: |
+          # Pull trusted validator directly from official tournament repository
+          curl -sSL https://raw.githubusercontent.com/Model-Wars/Model-Wars-Base-Repository/main/tools/validate_submission.py -o /tmp/official_validator.py
+          python /tmp/official_validator.py .
