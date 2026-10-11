@@ -1,16 +1,16 @@
 {
-  "dataset_version": "championship-tactical-v3",
+  "dataset_version": "unstoppable-tactical-v4",
   "split_method": "whole matches (85% train, 15% val), declared before fitting",
   "seed": 42,
   "architecture": "13D / encoder64 / GRU64 / mode4+steer (26,181 params)",
-  "objective": "Focal Loss (gamma=1.5, class weights: [1.5, 0.3, 4.0, 5.0]) + 5.0 * masked steering MSELoss + 0.5 * non-chase steering regularization",
-  "checkpoint_selection": "Composite score (Mode Acc + 0.6*Jump/Dodge Acc - 12*Steer MAE) on validation matches at Epoch 27",
-  "training_command": "py -3.12 tools/train_championship_policy.py",
+  "objective": "Class-weighted CrossEntropy (weights: [1.0, 0.6, 2.5, 3.0]) + 4.0 * masked steering MSELoss + anti-stall recovery training",
+  "checkpoint_selection": "Composite score (Mode Acc + 0.4*Jump/Dodge Acc - 10*Steer MAE) on validation matches at Epoch 24",
+  "training_command": "py -3.12 tools/train_unstoppable_bot.py",
   "validation_results": {
-    "mode_accuracy_pct": 84.71,
-    "steering_mae": 0.0661,
-    "jump_dodge_accuracy_pct": 75.11,
-    "final_val_loss": 0.5137
+    "mode_accuracy_pct": 93.77,
+    "steering_mae": 0.0847,
+    "jump_dodge_accuracy_pct": 45.92,
+    "final_val_loss": 0.4104
   },
   "limitations": "1v1 ground play and power flips optimized; wall aerials and advanced air rolls not represented in action contract."
 }
